@@ -318,6 +318,28 @@ the policy.
 - `307`/`308` replay the request body. Streamed bodies (chunked uploads) are
   only replayable up to 1 MiB; beyond that the redirect fails with `502`.
 
+### Letting the guest follow redirects
+
+Set `followRedirects: false` (a `VMOptions` and `sandbox` option, default
+`true`) and the host stops following. A redirect response reaches the guest like
+any other response: same status, `Location`, every `Set-Cookie` and all other
+headers, and `onResponse` runs on it. The guest then sends the next request
+itself. It enters the pipeline as a new request, so the allowlist, the
+internal-range block, request hooks and secret substitution apply to it as to
+any other request.
+
+```ts
+const vm = await VM.create({ followRedirects: false });
+// or VM.create({ sandbox: { followRedirects: false } })
+```
+
+This is meant for guests that are browsers. A browser has to see each redirect
+to store its cookies and update the page URL, so a login that answers
+`303` with a `Set-Cookie` fails when the host follows the redirect. With the
+option off, the limits above (10 hops, method rewriting, dropping
+`Authorization` and `Cookie`) are the guest's own business, not the host's. The
+default is unchanged. The `gondolin` CLI always follows redirects.
+
 ## Upstream TLS Trust
 
 The host verifies the certificates of upstream HTTPS servers:

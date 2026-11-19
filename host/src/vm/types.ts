@@ -60,6 +60,8 @@ export type VMOptions = {
   maxHttpResponseBodyBytes?: number;
   /** whether to allow WebSocket upgrades for guest egress (default: true) */
   allowWebSockets?: boolean;
+  /** whether the host follows upstream http redirects for guest egress (default: true) */
+  followRedirects?: boolean;
   /** vfs configuration (null disables vfs integration) */
   vfs?: VmVfsOptions | null;
   /** default environment variables */

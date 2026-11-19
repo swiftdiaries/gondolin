@@ -242,6 +242,9 @@ Important:
   drop `Authorization` and `Cookie`)
 - `isRequestAllowed` and `onResponse` receive the request after substitution
 - There is **no guarantee** that hooks only see placeholders
+- With `followRedirects: false` the guest sees the redirect response itself. If an
+  upstream echoes a substituted value into `Location` or `Set-Cookie`, the guest
+  reads it there; with host-followed redirects it never saw that response
 
 Do not log request headers/URLs from hooks unless you are comfortable
 potentially logging real secret values.

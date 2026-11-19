@@ -436,7 +436,8 @@ For each request (and again for each redirect hop):
 5. **Upstream request.** The connection is opened to an allowed address and
    the address is checked again at connect time.
 6. **Redirects** are followed by the host; the next hop starts again at
-   step 2.
+   step 2. With `followRedirects: false` the redirect goes to the guest
+   instead, and its next request starts at step 1.
 7. **`onResponse`.** Tier 2 first, then your process's hook; a `Response`
    from tier 2 is what tier 3 sees.
 

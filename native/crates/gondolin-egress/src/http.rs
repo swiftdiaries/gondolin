@@ -705,7 +705,12 @@ async fn fetch_and_respond(
         };
 
         let status = response.head.status;
-        if let Some(target) = redirect_target(status, &response.head.headers, &url) {
+        let redirect = if policy.follow_redirects {
+            redirect_target(status, &response.head.headers, &url)
+        } else {
+            None
+        };
+        if let Some(target) = redirect {
             drop(response);
             if redirect_count >= MAX_HTTP_REDIRECTS {
                 return Err(Blocked::new(508, "Loop Detected", "too many redirects").into());

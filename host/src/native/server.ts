@@ -143,6 +143,7 @@ export class NativeSandboxServer extends EventEmitter {
       ? new NativeNetwork({
           httpHooks: options.httpHooks,
           allowWebSockets: options.allowWebSockets,
+          followRedirects: options.followRedirects,
           maxHttpBodyBytes: options.maxHttpBodyBytes,
           maxHttpResponseBodyBytes: options.maxHttpResponseBodyBytes,
           dns: options.dns,

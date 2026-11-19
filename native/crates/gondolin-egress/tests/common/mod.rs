@@ -217,7 +217,7 @@ impl FlowAbort for AbortFlag {
 
 pub fn config(rules: Option<HttpRules>, ca: Option<&TestCa>) -> NetConfig {
     NetConfig {
-        policy: NetPolicy { rules, allow_websockets: true },
+        policy: NetPolicy { rules, allow_websockets: true, follow_redirects: true },
         mitm: ca.map(TestCa::mitm_config),
         use_system_roots: false,
         use_webpki_roots: false,
