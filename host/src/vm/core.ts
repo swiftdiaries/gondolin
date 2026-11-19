@@ -332,6 +332,12 @@ export class VM {
     ) {
       sandboxOptions.allowWebSockets = options.allowWebSockets;
     }
+    if (
+      options.followRedirects !== undefined &&
+      sandboxOptions.followRedirects === undefined
+    ) {
+      sandboxOptions.followRedirects = options.followRedirects;
+    }
     if (options.tcp && sandboxOptions.tcp === undefined) {
       sandboxOptions.tcp = options.tcp;
     }
@@ -503,6 +509,12 @@ export class VM {
       sandboxOptions.allowWebSockets === undefined
     ) {
       sandboxOptions.allowWebSockets = options.allowWebSockets;
+    }
+    if (
+      options.followRedirects !== undefined &&
+      sandboxOptions.followRedirects === undefined
+    ) {
+      sandboxOptions.followRedirects = options.followRedirects;
     }
     if (options.tcp && sandboxOptions.tcp === undefined) {
       sandboxOptions.tcp = options.tcp;

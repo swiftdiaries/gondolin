@@ -104,6 +104,27 @@ test("native net: createHttpHooks compiles to declarative rules", () => {
   assert.deepEqual(updated.rules.secrets[0]!.revoked_values, ["v1"]);
 });
 
+test("native net: followRedirects defaults to true and maps to the wire policy", () => {
+  assert.equal(compileNetConfig({}).config.policy.follow_redirects, true);
+  assert.equal(
+    compileNetConfig({ followRedirects: true }).config.policy.follow_redirects,
+    true,
+  );
+
+  const { httpHooks, secretManager } = createHttpHooks({
+    allowedHosts: ["example.com"],
+    secrets: { API_KEY: { hosts: ["example.com"], value: "v1" } },
+  });
+  const compiled = compileNetConfig({ httpHooks, followRedirects: false });
+  assert.equal(compiled.config.policy.follow_redirects, false);
+
+  const updates: Array<{ follow_redirects: boolean }> = [];
+  compiled.onPolicyUpdate((policy) => updates.push(policy));
+  secretManager.updateSecret("API_KEY", { value: "v2" });
+  assert.equal(updates.length, 1);
+  assert.equal(updates[0]!.follow_redirects, false);
+});
+
 test("native net: createHttpHooks without user hooks needs no callbacks", () => {
   const { httpHooks } = createHttpHooks({ allowedHosts: ["example.com"] });
   const compiled = compileNetConfig({ httpHooks });

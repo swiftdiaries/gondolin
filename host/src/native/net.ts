@@ -34,6 +34,7 @@ import { normalizeIpv4Servers } from "../utils/dns.ts";
 export type NetPolicyWire = {
   rules?: NativeHttpRules;
   allow_websockets: boolean;
+  follow_redirects: boolean;
 };
 
 /** `configure.net.hooks` */
@@ -197,6 +198,8 @@ export type CompileNetOptions = {
   httpHooks?: HttpHooks;
   /** default: true */
   allowWebSockets?: boolean;
+  /** default: true */
+  followRedirects?: boolean;
   maxHttpBodyBytes?: number;
   maxHttpResponseBodyBytes?: number;
   /** MITM CA (PEM) */
@@ -249,6 +252,7 @@ function declarativeDescriptor(
  */
 export function compileNetConfig(options: CompileNetOptions): CompiledNet {
   const allowWebSockets = options.allowWebSockets ?? true;
+  const followRedirects = options.followRedirects ?? true;
   const descriptor = declarativeDescriptor(options.httpHooks);
 
   let tier3: TierThreeHooks = {};
@@ -322,6 +326,7 @@ export function compileNetConfig(options: CompileNetOptions): CompiledNet {
     policy: {
       ...(rules ? { rules } : {}),
       allow_websockets: allowWebSockets,
+      follow_redirects: followRedirects,
     },
     hooks: registrations,
     ...(djsHooks ? { djs_hooks: djsHooks } : {}),
@@ -353,6 +358,7 @@ export function compileNetConfig(options: CompileNetOptions): CompiledNet {
         listener({
           rules: descriptor.rules(),
           allow_websockets: allowWebSockets,
+          follow_redirects: followRedirects,
         });
       });
     },

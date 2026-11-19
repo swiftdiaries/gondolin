@@ -99,6 +99,8 @@ export type SandboxServerOptions = {
   netEnabled?: boolean;
   /** whether to allow WebSocket upgrades for guest egress (default: true) */
   allowWebSockets?: boolean;
+  /** whether the host follows upstream http redirects for guest egress (default: true) */
+  followRedirects?: boolean;
 
   /**
    * Root disk image path (attached as `/dev/vda`)
@@ -220,6 +222,8 @@ export type ResolvedSandboxServerOptions = {
   netEnabled: boolean;
   /** whether to allow WebSocket upgrades for guest egress */
   allowWebSockets: boolean;
+  /** whether the host follows upstream http redirects for guest egress */
+  followRedirects: boolean;
 
   /** enabled debug components */
   debug: DebugFlag[];
@@ -1110,6 +1114,7 @@ export function resolveSandboxServerOptions(
     netMac: options.netMac ?? defaultNetMac,
     netEnabled: options.netEnabled ?? true,
     allowWebSockets: options.allowWebSockets ?? true,
+    followRedirects: options.followRedirects ?? true,
     debug,
     machineType: options.machineType,
     accel: options.accel,
