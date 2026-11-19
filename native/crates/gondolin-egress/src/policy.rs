@@ -339,7 +339,7 @@ mod tests {
 
     fn engine(rules: Option<HttpRules>) -> PolicyEngine {
         PolicyEngine::new(
-            NetPolicy { rules, allow_websockets: true },
+            NetPolicy { rules, allow_websockets: true, follow_redirects: true },
             Arc::new(NoHooks),
             Arc::new(Static(vec!["10.0.0.1".parse().unwrap(), "203.0.113.10".parse().unwrap()])),
         )

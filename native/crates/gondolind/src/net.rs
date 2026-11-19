@@ -526,13 +526,14 @@ mod tests {
     #[test]
     fn configure_net_shape() {
         let cfg = decode_config(gondolin_wire::value!({
-            "policy": { "allow_websockets": false, "rules": { "allowed_hosts": ["example.com"] } },
+            "policy": { "allow_websockets": false, "follow_redirects": false, "rules": { "allowed_hosts": ["example.com"] } },
             "hooks": { "is_ip_allowed": true },
             "limits": { "max_request_body_bytes": 10 },
             "stack": { "dns": { "mode": "trusted", "synthetic_host_mapping": "per-host" } },
             "system_resolvers": ["10.0.0.53", "fe80::1%en0"],
         }));
         assert!(!cfg.egress.policy.allow_websockets);
+        assert!(!cfg.egress.policy.follow_redirects);
         assert_eq!(cfg.egress.policy.rules.unwrap().allowed_hosts, vec!["example.com"]);
         assert!(cfg.egress.hooks.is_ip_allowed);
         assert_eq!(cfg.egress.limits.max_request_body_bytes, 10);
@@ -547,12 +548,17 @@ mod tests {
             "system_resolvers": ["10.0.0.53"],
             "stack": { "dns": { "mode": "trusted" } },
         }));
+        assert!(cfg.egress.policy.follow_redirects);
         let fake = Arc::new(Fake::default());
         let net = Net::new(cfg, fake.clone()).unwrap();
 
         // policy_update replaces the policy
         let update = to_value(&PolicyUpdate {
-            policy: proto::NetPolicy { rules: None, allow_websockets: false },
+            policy: proto::NetPolicy {
+                rules: None,
+                allow_websockets: false,
+                follow_redirects: true,
+            },
         })
         .unwrap();
         assert!(net.handle_request("policy_update", update).await.unwrap().is_ok());

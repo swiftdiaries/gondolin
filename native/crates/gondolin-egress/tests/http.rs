@@ -561,6 +561,46 @@ async fn redirects_are_followed_and_revalidated() {
 }
 
 #[tokio::test]
+async fn redirects_are_passed_to_the_guest_when_follow_redirects_is_off() {
+    let hits = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let seen = hits.clone();
+    let addr = upstream(
+        handler(move |_req| {
+            let seen = seen.clone();
+            async move {
+                seen.fetch_add(1, Ordering::SeqCst);
+                let mut resp = Response::new(body("redirecting"));
+                *resp.status_mut() = http::StatusCode::FOUND;
+                resp.headers_mut().insert("location", "/secure".parse().unwrap());
+                resp.headers_mut().append("set-cookie", "a=1; Path=/".parse().unwrap());
+                resp.headers_mut().append("set-cookie", "b=2; Path=/".parse().unwrap());
+                resp
+            }
+        }),
+        None,
+    )
+    .await;
+    let rules = HttpRules {
+        allowed_hosts: vec!["a.test".into()],
+        allowed_internal_hosts: vec!["a.test".into()],
+        ..HttpRules::default()
+    };
+    let mut cfg = config(Some(rules), None);
+    cfg.policy.follow_redirects = false;
+    let h = Harness::new(cfg, Arc::new(gondolin_egress::NoHooks));
+    let port = addr.port();
+    let r = parse(
+        &h.raw(format!("GET /login HTTP/1.1\r\nHost: a.test:{port}\r\n\r\n").as_bytes()).await,
+    );
+    assert_eq!(r.status, 302);
+    assert_eq!(r.header("location"), Some("/secure"));
+    let cookies: Vec<&str> =
+        r.headers.iter().filter(|(k, _)| k == "set-cookie").map(|(_, v)| v.as_str()).collect();
+    assert_eq!(cookies, ["a=1; Path=/", "b=2; Path=/"]);
+    assert_eq!(hits.load(Ordering::SeqCst), 1);
+}
+
+#[tokio::test]
 async fn upstream_connect_failure_is_502() {
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
     let port = listener.local_addr().unwrap().port();

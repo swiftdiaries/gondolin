@@ -123,6 +123,7 @@ fn config() -> NetConfig {
                 ..HttpRules::default()
             }),
             allow_websockets: true,
+            follow_redirects: true,
         },
         mitm: Some(ca().clone()),
         ssh: Some(SshEgressConfig { ports: vec![22], ..Default::default() }),

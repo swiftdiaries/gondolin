@@ -65,12 +65,14 @@ gondolin_wire::wire_struct! {
         pub rules: Option<HttpRules>,
         /// whether WebSocket upgrades are tunneled (`allowWebSockets`)
         pub allow_websockets: bool = NetPolicy::default().allow_websockets,
+        /// whether the host follows upstream redirects; when false the guest gets the 3xx itself (`followRedirects`)
+        pub follow_redirects: bool = NetPolicy::default().follow_redirects,
     }
 }
 
 impl Default for NetPolicy {
     fn default() -> Self {
-        Self { rules: None, allow_websockets: true }
+        Self { rules: None, allow_websockets: true, follow_redirects: true }
     }
 }
 
@@ -581,6 +583,7 @@ mod tests {
         let enc = gondolin_wire::encode(&serde_json_like_empty()).unwrap();
         let cfg: NetConfig = gondolin_wire::decode(&enc).unwrap();
         assert!(cfg.policy.allow_websockets);
+        assert!(cfg.policy.follow_redirects);
         assert_eq!(cfg.limits.max_concurrent_requests, 128);
         assert!(cfg.use_system_roots);
     }
