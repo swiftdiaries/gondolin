@@ -41,6 +41,7 @@ optional.
 | `maxHttpBodyBytes` | `number` | 64 MiB | Max intercepted HTTP request body in `bytes` ([HTTP Hooks and Policies](./hooks.md)) |
 | `maxHttpResponseBodyBytes` | `number` | 64 MiB | Max buffered upstream HTTP response body in `bytes` |
 | `allowWebSockets` | `boolean` | `true` | Allow WebSocket upgrades for guest egress |
+| `followRedirects` | `boolean` | `true` | Follow upstream HTTP redirects on the host; `false` hands them to the guest unchanged, for browsers ([Redirects](./network-access.md#redirects)) |
 | `vfs` | `VmVfsOptions \| null` | `/etc/gondolin` and CA mounts only | Mounts and VFS hooks; `null` disables VFS integration (see below) ([Files and Mounts](./vfs.md)) |
 | `tmpfs` | `GuestTmpfsMounts` | `DEFAULT_GUEST_TMPFS` | Guest tmpfs mounts replacing the built-in set; `{}` keeps scratch paths on the root disk ([Files and Mounts](./vfs.md)) |
 | `rootfs` | `VmRootfsOptions` | mode from the image, else `"cow"` | Root disk mode and minimum size ([Persistence and Snapshots](./snapshots.md)) |
@@ -51,8 +52,9 @@ optional.
 | `fetch` | `HttpFetch` | — | Deprecated and ignored; use `httpHooks.onRequest` |
 
 `memory`, `cpus`, `tmpfs`, `httpHooks`, `dns`, `tcp`, `ssh`,
-`maxHttpBodyBytes`, `maxHttpResponseBodyBytes` and `allowWebSockets` also
-exist under `sandbox`; when both are set, the `sandbox` value wins.
+`maxHttpBodyBytes`, `maxHttpResponseBodyBytes`, `allowWebSockets` and
+`followRedirects` also exist under `sandbox`; when both are set, the `sandbox`
+value wins.
 
 `VmVfsOptions`:
 
@@ -105,6 +107,7 @@ when the daemon runs on a [remote machine](./remote.md).
 | `netEnabled` | `boolean` | `true` | Guest networking; `false` gives the guest no network (and no injected MITM CA) |
 | `netMac` | `string` | `02:00:00:00:00:01` | Guest MAC address |
 | `allowWebSockets` | `boolean` | `true` | Same as `VMOptions.allowWebSockets` |
+| `followRedirects` | `boolean` | `true` | Same as `VMOptions.followRedirects` |
 | `httpHooks`, `dns`, `tcp`, `ssh` | | — | Same as the `VMOptions` fields |
 | `maxHttpBodyBytes`, `maxHttpResponseBodyBytes` | `number` | 64 MiB | Same as the `VMOptions` fields |
 | `mitmCertDir` | `string` | `GONDOLIN_MITM_CERT_DIR`, else `~/.cache/gondolin/ssl` | Directory of the MITM CA key and certificate ([HTTP Hooks and Policies](./hooks.md)) |
